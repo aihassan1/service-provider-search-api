@@ -3,6 +3,7 @@ import { ServiceProviderRepository } from './infrastructure/persistence/service-
 import { ServiceProvider } from './entities/service-provider.entity';
 import { SearchServiceProviderDto } from './dto/search-service-provider.dto';
 import { CreateServiceProviderDto } from './dto/create-service-provider.dto';
+import { UpdateServiceProviderDto } from './dto/update-service-provider.dto';
 import { ExcelParserService } from '../excel-parser/excel-parser.service';
 
 @Injectable()
@@ -25,6 +26,21 @@ export class ProvidersService {
       throw new NotFoundException(`Service provider with ID ${id} not found`);
     }
     return provider;
+  }
+
+  async update(
+    id: string,
+    updateDto: UpdateServiceProviderDto,
+  ): Promise<ServiceProvider> {
+    const provider = await this.serviceProviderRepository.findById(id);
+    if (!provider) {
+      throw new NotFoundException(`Service provider with ID ${id} not found`);
+    }
+    const updated = await this.serviceProviderRepository.update(id, updateDto);
+    if (!updated) {
+      throw new NotFoundException(`Service provider with ID ${id} not found`);
+    }
+    return updated;
   }
 
   async search(dto: SearchServiceProviderDto) {

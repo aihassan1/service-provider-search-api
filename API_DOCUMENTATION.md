@@ -2,7 +2,7 @@
 
 ## Overview
 
-This API provides endpoints for managing and searching service provider data. The backend is built with **NestJS**, **PostgreSQL**, **TypeORM**, and implements **fuzzy search** using PostgreSQL's `pg_trgm` extension.
+This API provides endpoints for managing and searching service provider data with **admin authentication** for write operations. The backend is built with **NestJS**, **PostgreSQL**, **TypeORM**, and implements **fuzzy search** using PostgreSQL's `pg_trgm` extension.
 
 ## Base URL
 
@@ -12,7 +12,7 @@ http://localhost:3000/api/v1
 
 ## Authentication
 
-Admin endpoints require JWT authentication. Include the token in the Authorization header:
+Admin endpoints require **JWT authentication**. Include the token in the Authorization header:
 
 ```
 Authorization: Bearer <your_jwt_token>
@@ -30,9 +30,26 @@ curl -X POST http://localhost:3000/api/v1/auth/email/login \
 - Email: `admin@example.com`
 - Password: `secret`
 
+**Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "...",
+  "tokenExpires": 1234567890,
+  "user": {
+    "id": "uuid",
+    "email": "admin@example.com",
+    "role": {
+      "id": 1,
+      "name": "admin"
+    }
+  }
+}
+```
+
 ---
 
-## Public Endpoints
+## Public Endpoints (No Authentication Required)
 
 ### 1. Search Service Providers
 
@@ -61,9 +78,6 @@ curl "http://localhost:3000/api/v1/providers/search?q=جراحة&limit=5"
 # Filter by province
 curl "http://localhost:3000/api/v1/providers/search?province=القاهرة&limit=10"
 
-# Filter by specialization
-curl "http://localhost:3000/api/v1/providers/search?specialization=علاج%20طبيعي"
-
 # Combined search and filter
 curl "http://localhost:3000/api/v1/providers/search?q=أسنان&province=القاهرة&page=1&limit=20"
 ```
@@ -87,10 +101,10 @@ curl "http://localhost:3000/api/v1/providers/search?q=أسنان&province=الق
       "updatedAt": "2025-10-18T04:02:59.935Z"
     }
   ],
-  "total": 4345,
+  "total": 472,
   "page": 1,
   "limit": 20,
-  "totalPages": 218
+  "totalPages": 24
 }
 ```
 
@@ -119,12 +133,6 @@ curl "http://localhost:3000/api/v1/providers/filters"
 }
 ```
 
-**Statistics:**
-- 29 Provinces
-- 326 Cities
-- 99 Specializations
-- 12 Provider Types
-
 ---
 
 ### 3. Get Statistics
@@ -146,13 +154,11 @@ curl "http://localhost:3000/api/v1/providers/statistics"
   "total": 4345,
   "byProvince": [
     {"province": "القاهرة", "count": 1403},
-    {"province": "الجيزة", "count": 905},
-    {"province": "الإسكندرية", "count": 325}
+    {"province": "الجيزة", "count": 905}
   ],
   "bySpecialization": [
     {"specialization": "تحاليل طبية", "count": 1185},
-    {"specialization": "صيدلية", "count": 1075},
-    {"specialization": "متعدد التخصصات", "count": 484}
+    {"specialization": "صيدلية", "count": 1075}
   ]
 }
 ```
@@ -191,9 +197,132 @@ curl "http://localhost:3000/api/v1/providers/8aad3ab6-50a4-4fa8-83c5-f0a7eff9e9d
 
 ---
 
-## Admin Endpoints
+## Admin Endpoints (Authentication Required)
 
-### 5. Upload Excel File
+All admin endpoints require a valid JWT token with admin role.
+
+### 5. Create Service Provider
+
+**Endpoint:** `POST /admin/providers`
+
+**Description:** Create a new service provider.
+
+**Authentication:** Required (Admin role)
+
+**Request Body:**
+
+```json
+{
+  "providerName": "د. أحمد محمد",
+  "providerType": "مستشفى",
+  "servicesProvided": "خدمات خارجية",
+  "specialization": "جراحة عامة",
+  "address": "123 شارع الجامعة، الدور الثاني",
+  "city": "مدينة نصر",
+  "province": "القاهرة",
+  "phoneNumber": "01234567890"
+}
+```
+
+**Example Request:**
+
+```bash
+TOKEN="your_jwt_token_here"
+
+curl -X POST http://localhost:3000/api/v1/admin/providers \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerName": "د. أحمد محمد",
+    "providerType": "مستشفى",
+    "servicesProvided": "خدمات خارجية",
+    "specialization": "جراحة عامة",
+    "address": "123 شارع الجامعة",
+    "city": "مدينة نصر",
+    "province": "القاهرة",
+    "phoneNumber": "01234567890"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "message": "Service provider created successfully",
+  "data": {
+    "id": "new-uuid",
+    "providerName": "د. أحمد محمد",
+    "providerType": "مستشفى",
+    "servicesProvided": "خدمات خارجية",
+    "specialization": "جراحة عامة",
+    "address": "123 شارع الجامعة",
+    "city": "مدينة نصر",
+    "province": "القاهرة",
+    "phoneNumber": "01234567890",
+    "createdAt": "2025-10-18T10:00:00.000Z",
+    "updatedAt": "2025-10-18T10:00:00.000Z"
+  }
+}
+```
+
+---
+
+### 6. Update Service Provider
+
+**Endpoint:** `PUT /admin/providers/:id`
+
+**Description:** Update an existing service provider.
+
+**Authentication:** Required (Admin role)
+
+**Request Body:** (All fields optional)
+
+```json
+{
+  "providerName": "د. أحمد محمد المحدث",
+  "specialization": "جراحة عظام",
+  "phoneNumber": "01098765432"
+}
+```
+
+**Example Request:**
+
+```bash
+TOKEN="your_jwt_token_here"
+
+curl -X PUT http://localhost:3000/api/v1/admin/providers/8aad3ab6-50a4-4fa8-83c5-f0a7eff9e9d3 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "providerName": "د. أحمد محمد المحدث",
+    "specialization": "جراحة عظام"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "message": "Service provider updated successfully",
+  "data": {
+    "id": "8aad3ab6-50a4-4fa8-83c5-f0a7eff9e9d3",
+    "providerName": "د. أحمد محمد المحدث",
+    "providerType": "مستشفى",
+    "servicesProvided": "خدمات خارجية",
+    "specialization": "جراحة عظام",
+    "address": "123 شارع الجامعة",
+    "city": "مدينة نصر",
+    "province": "القاهرة",
+    "phoneNumber": "01234567890",
+    "createdAt": "2025-10-18T10:00:00.000Z",
+    "updatedAt": "2025-10-18T11:00:00.000Z"
+  }
+}
+```
+
+---
+
+### 7. Upload Excel File
 
 **Endpoint:** `POST /admin/providers/upload`
 
@@ -242,34 +371,7 @@ curl -X POST http://localhost:3000/api/v1/admin/providers/upload \
 
 ---
 
-### 6. Clear All Providers
-
-**Endpoint:** `DELETE /admin/providers/clear`
-
-**Description:** Delete all service providers from the database.
-
-**Authentication:** Required (Admin role)
-
-**Example Request:**
-
-```bash
-TOKEN="your_jwt_token_here"
-
-curl -X DELETE http://localhost:3000/api/v1/admin/providers/clear \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-**Response:**
-
-```json
-{
-  "message": "All service providers have been cleared"
-}
-```
-
----
-
-### 7. Delete Provider by ID
+### 8. Delete Service Provider
 
 **Endpoint:** `DELETE /admin/providers/:id`
 
@@ -296,23 +398,30 @@ curl -X DELETE http://localhost:3000/api/v1/admin/providers/8aad3ab6-50a4-4fa8-8
 
 ---
 
-## Fuzzy Search Implementation
+### 9. Clear All Providers
 
-The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy matching, which:
+**Endpoint:** `DELETE /admin/providers/clear`
 
-- Supports **Arabic text** search
-- Calculates **similarity scores** across multiple fields
-- Combines **trigram similarity** with **ILIKE pattern matching**
-- Ranks results by **relevance**
+**Description:** Delete all service providers from the database.
 
-**Search Fields (weighted):**
-1. Provider Name (weight: 2.0)
-2. Specialization (weight: 1.5)
-3. Services Provided (weight: 1.0)
-4. Address (weight: 0.5)
-5. City (weight: 1.0)
+**Authentication:** Required (Admin role)
 
-**Minimum Similarity Threshold:** 0.1 (10%)
+**Example Request:**
+
+```bash
+TOKEN="your_jwt_token_here"
+
+curl -X DELETE http://localhost:3000/api/v1/admin/providers/clear \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Response:**
+
+```json
+{
+  "message": "All service providers have been cleared"
+}
+```
 
 ---
 
@@ -335,6 +444,15 @@ The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy match
 }
 ```
 
+### 403 Forbidden
+```json
+{
+  "statusCode": 403,
+  "message": "Forbidden resource",
+  "error": "Forbidden"
+}
+```
+
 ### 404 Not Found
 ```json
 {
@@ -346,6 +464,20 @@ The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy match
 
 ---
 
+## CRUD Operations Summary
+
+| Operation | Endpoint | Method | Auth Required | Description |
+|-----------|----------|--------|---------------|-------------|
+| **Create** | `/admin/providers` | POST | ✅ Admin | Create single provider |
+| **Read (One)** | `/providers/:id` | GET | ❌ Public | Get provider by ID |
+| **Read (Search)** | `/providers/search` | GET | ❌ Public | Search with filters |
+| **Update** | `/admin/providers/:id` | PUT | ✅ Admin | Update provider |
+| **Delete** | `/admin/providers/:id` | DELETE | ✅ Admin | Delete provider |
+| **Bulk Import** | `/admin/providers/upload` | POST | ✅ Admin | Import from Excel |
+| **Clear All** | `/admin/providers/clear` | DELETE | ✅ Admin | Delete all providers |
+
+---
+
 ## Swagger Documentation
 
 Interactive API documentation is available at:
@@ -354,111 +486,88 @@ Interactive API documentation is available at:
 http://localhost:3000/docs
 ```
 
----
-
-## Database Schema
-
-### service_provider Table
-
-| Column | Type | Nullable | Indexed |
-|--------|------|----------|---------|
-| id | UUID | No | Primary Key |
-| providerName | VARCHAR(500) | No | Yes |
-| providerType | VARCHAR(200) | No | No |
-| servicesProvided | VARCHAR(500) | No | Yes |
-| specialization | VARCHAR(300) | No | Yes |
-| address | TEXT | No | Yes |
-| city | VARCHAR(200) | No | Yes |
-| province | VARCHAR(200) | No | Yes |
-| phoneNumber | VARCHAR(100) | Yes | No |
-| createdAt | TIMESTAMP | No | No |
-| updatedAt | TIMESTAMP | No | No |
-
-**Indexes:**
-- `idx_provider_name` on `providerName`
-- `idx_services_provided` on `servicesProvided`
-- `idx_specialization` on `specialization`
-- `idx_address` on `address`
-- `idx_city` on `city`
-- `idx_province` on `province`
+The Swagger UI provides:
+- Interactive endpoint testing
+- Request/response schemas
+- Authentication testing
+- Example requests
 
 ---
 
-## Performance Considerations
+## Authentication Flow
 
-- **Pagination:** Use `limit` and `page` parameters to avoid loading large datasets
-- **Indexes:** All searchable fields are indexed for optimal query performance
-- **Batch Import:** The upload endpoint processes files in batch for efficiency
-- **Connection Pool:** Database connection pool size is configurable (default: 100)
+### 1. Login as Admin
 
----
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/email/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"secret"}'
+```
 
-## Testing Results
+### 2. Extract Token
 
-**Import Test:**
-- ✅ Successfully imported 4,345 providers
-- ✅ All 8 columns parsed correctly
-- ✅ Arabic text handled properly
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  ...
+}
+```
 
-**Search Tests:**
-- ✅ Fuzzy search: "جراحة" → 472 results
-- ✅ Fuzzy search: "طبيعي" → 1,460 results
-- ✅ Fuzzy search: "أسنان" → 650 results
-- ✅ Filter by specialization: "علاج طبيعي" → 195 results
-- ✅ Statistics endpoint: All 4,345 providers counted
+### 3. Use Token in Requests
 
----
+```bash
+TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
-## Next Steps for Frontend
-
-1. **Authentication:** Implement login flow using `/auth/email/login`
-2. **Search Interface:** Create search bar with real-time results
-3. **Filters:** Add dropdowns for province, city, specialization
-4. **Pagination:** Implement page navigation
-5. **Provider Details:** Show full details on click
-6. **Admin Panel:** File upload interface for admins
-
----
-
-## Environment Variables
-
-```env
-NODE_ENV=development
-APP_PORT=3000
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USERNAME=root
-DATABASE_PASSWORD=secret
-DATABASE_NAME=api
+curl -X POST http://localhost:3000/api/v1/admin/providers \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"providerName":"Test",...}'
 ```
 
 ---
 
-## Running the Application
+## Rate Limiting
 
-```bash
-# Install dependencies
-npm install
+Currently no rate limiting is implemented. For production deployment, consider adding:
 
-# Run migrations
-npm run migration:run
+```typescript
+// main.ts
+import rateLimit from 'express-rate-limit';
 
-# Seed admin user
-npm run seed:run:relational
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+  })
+);
+```
 
-# Start development server
-npm run start:dev
+---
 
-# Build for production
-npm run build
+## CORS Configuration
 
-# Start production server
-npm run start:prod
+CORS is enabled for all origins by default. To restrict:
+
+```typescript
+// main.ts
+app.enableCors({
+  origin: ['https://yourdomain.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+});
 ```
 
 ---
 
 ## Support
 
-For issues or questions, refer to the [NestJS Boilerplate Documentation](https://github.com/brocoders/nestjs-boilerplate).
+For questions or issues:
+- Check [README.md](./README.md)
+- Review [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)
+- Open an issue on GitHub
+
+---
+
+**Last Updated**: October 18, 2025  
+**API Version**: 1.0.0
 
