@@ -75,17 +75,17 @@ A **production-ready NestJS backend API** for managing and searching healthcare 
 
 ### Technology Stack
 
-| Component | Technology | Version |
-|-----------|------------|---------|
-| **Framework** | NestJS | 10.x |
-| **Language** | TypeScript | 5.x |
-| **Database** | PostgreSQL | 14+ |
-| **ORM** | TypeORM | 0.3.x |
-| **Search** | pg_trgm | - |
-| **Auth** | JWT + Passport | - |
-| **Validation** | class-validator | 0.14.x |
-| **Docs** | Swagger/OpenAPI | 7.x |
-| **Excel** | xlsx | 0.18.x |
+| Component      | Technology      | Version |
+| -------------- | --------------- | ------- |
+| **Framework**  | NestJS          | 10.x    |
+| **Language**   | TypeScript      | 5.x     |
+| **Database**   | PostgreSQL      | 14+     |
+| **ORM**        | TypeORM         | 0.3.x   |
+| **Search**     | pg_trgm         | -       |
+| **Auth**       | JWT + Passport  | -       |
+| **Validation** | class-validator | 0.14.x  |
+| **Docs**       | Swagger/OpenAPI | 7.x     |
+| **Excel**      | xlsx            | 0.18.x  |
 
 ---
 
@@ -127,30 +127,30 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 ### Public Endpoints (No Auth)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/providers/search` | Search with fuzzy matching |
-| GET | `/api/v1/providers/filters` | Get filter options |
-| GET | `/api/v1/providers/statistics` | Get statistics |
-| GET | `/api/v1/providers/:id` | Get provider by ID |
+| Method | Endpoint                       | Description                |
+| ------ | ------------------------------ | -------------------------- |
+| GET    | `/api/v1/providers/search`     | Search with fuzzy matching |
+| GET    | `/api/v1/providers/filters`    | Get filter options         |
+| GET    | `/api/v1/providers/statistics` | Get statistics             |
+| GET    | `/api/v1/providers/:id`        | Get provider by ID         |
 
 ### Admin Endpoints (Auth Required)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/admin/providers` | Create provider |
-| PUT | `/api/v1/admin/providers/:id` | Update provider |
-| DELETE | `/api/v1/admin/providers/:id` | Delete provider |
-| POST | `/api/v1/admin/providers/upload` | Upload Excel file |
-| DELETE | `/api/v1/admin/providers/clear` | Clear all providers |
+| Method | Endpoint                         | Description         |
+| ------ | -------------------------------- | ------------------- |
+| POST   | `/api/v1/admin/providers`        | Create provider     |
+| PUT    | `/api/v1/admin/providers/:id`    | Update provider     |
+| DELETE | `/api/v1/admin/providers/:id`    | Delete provider     |
+| POST   | `/api/v1/admin/providers/upload` | Upload Excel file   |
+| DELETE | `/api/v1/admin/providers/clear`  | Clear all providers |
 
 ### Authentication
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/auth/email/login` | Login with email/password |
-| POST | `/api/v1/auth/email/register` | Register new user |
-| POST | `/api/v1/auth/refresh` | Refresh JWT token |
+| Method | Endpoint                      | Description               |
+| ------ | ----------------------------- | ------------------------- |
+| POST   | `/api/v1/auth/email/login`    | Login with email/password |
+| POST   | `/api/v1/auth/email/register` | Register new user         |
+| POST   | `/api/v1/auth/refresh`        | Refresh JWT token         |
 
 ---
 
@@ -192,24 +192,28 @@ ORDER BY (
 ## 🧪 Test Results
 
 ### Data Import
+
 - **Total Records**: 4,345
 - **Success Rate**: 100%
 - **Import Time**: < 5 seconds
 
 ### Search Performance
-| Query | Results | Response Time |
-|-------|---------|---------------|
-| "جراحة" | 472 | < 50ms |
-| "طبيعي" | 1,460 | < 60ms |
-| "أسنان" | 650 | < 55ms |
+
+| Query   | Results | Response Time |
+| ------- | ------- | ------------- |
+| "جراحة" | 472     | < 50ms        |
+| "طبيعي" | 1,460   | < 60ms        |
+| "أسنان" | 650     | < 55ms        |
 
 ### Filter Options
+
 - **Provinces**: 29
 - **Cities**: 326
 - **Specializations**: 99
 - **Provider Types**: 12
 
 ### Authentication
+
 - ✅ Login successful
 - ✅ JWT token generation working
 - ✅ Protected endpoints return 401 without token
@@ -321,10 +325,12 @@ curl -X POST http://localhost:3000/api/v1/admin/providers/upload \
 ## 🔐 Default Credentials
 
 **Admin Account:**
+
 - Email: `admin@example.com`
 - Password: `secret`
 
 **Regular User:**
+
 - Email: `john.doe@example.com`
 - Password: `secret`
 
@@ -364,31 +370,37 @@ service-provider-search-api/
 ## 🎯 Key Features Implemented
 
 ### 1. Repository Pattern
+
 - Abstract repository interface
 - Concrete TypeORM implementation
 - Easy to swap database implementations
 
 ### 2. Mapper Pattern
+
 - Domain entities separate from TypeORM entities
 - Clean separation of concerns
 - Testable business logic
 
 ### 3. DTO Validation
+
 - Input validation with class-validator
 - Type-safe request/response
 - Automatic error messages
 
 ### 4. Dependency Injection
+
 - Loose coupling
 - Testable components
 - NestJS built-in DI container
 
 ### 5. Error Handling
+
 - Global exception filter
 - Consistent error responses
 - Proper HTTP status codes
 
 ### 6. Swagger Documentation
+
 - Auto-generated from code
 - Interactive testing
 - Always up-to-date
@@ -429,13 +441,13 @@ CORS_ORIGIN=*
 
 ## 📈 Performance Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Search Response Time** | < 100ms |
-| **Import Speed** | ~1,500 records/second |
-| **Database Size** | ~2MB for 4,345 records |
-| **Concurrent Connections** | 100 (configurable) |
-| **Supported Load** | 1000+ requests/minute |
+| Metric                     | Value                  |
+| -------------------------- | ---------------------- |
+| **Search Response Time**   | < 100ms                |
+| **Import Speed**           | ~1,500 records/second  |
+| **Database Size**          | ~2MB for 4,345 records |
+| **Concurrent Connections** | 100 (configurable)     |
+| **Supported Load**         | 1000+ requests/minute  |
 
 ---
 
@@ -549,4 +561,3 @@ docker run -p 3000:3000 \
 **Last Updated**: October 18, 2025  
 **Version**: 1.0.0  
 **Author**: Development Team
-

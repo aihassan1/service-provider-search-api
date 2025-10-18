@@ -21,6 +21,7 @@ This API provides a comprehensive solution for searching through **4,345+ health
 ## ✨ Features
 
 ### 🔍 Search Capabilities
+
 - **Fuzzy matching** using PostgreSQL's `pg_trgm` extension
 - **Weighted relevance scoring** for accurate results
 - Search across multiple fields simultaneously
@@ -28,18 +29,21 @@ This API provides a comprehensive solution for searching through **4,345+ health
 - Pagination and sorting
 
 ### 📊 Data Management
+
 - Import providers from Excel files (.xlsx, .xls)
 - Automatic data validation and cleaning
 - Bulk operations for efficient data handling
 - Statistics and analytics endpoints
 
 ### 🎯 Filtering Options
+
 - **29 Provinces** (محافظات)
 - **326 Cities** (مدن)
 - **99 Specializations** (تخصصات)
 - **12 Provider Types** (أنواع مقدمي الخدمة)
 
 ### 🔐 Security
+
 - Input validation on all endpoints
 - SQL injection prevention
 - File upload validation (type, size)
@@ -56,22 +60,26 @@ This API provides a comprehensive solution for searching through **4,345+ health
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd service-provider-app
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Configure environment**
+
    ```bash
    cp env-example-relational .env
    ```
-   
+
    Update `.env` with your database credentials:
+
    ```env
    DATABASE_HOST=localhost
    DATABASE_PORT=5432
@@ -81,10 +89,11 @@ This API provides a comprehensive solution for searching through **4,345+ health
    ```
 
 4. **Setup database**
+
    ```bash
    # Start PostgreSQL
    sudo service postgresql start
-   
+
    # Create database and enable extensions
    sudo -u postgres psql -c "CREATE USER root WITH PASSWORD 'secret';"
    sudo -u postgres psql -c "CREATE DATABASE api OWNER root;"
@@ -92,15 +101,17 @@ This API provides a comprehensive solution for searching through **4,345+ health
    ```
 
 5. **Run migrations**
+
    ```bash
    npm run migration:run
    ```
 
 6. **Start the server**
+
    ```bash
    # Development mode
    npm run start:dev
-   
+
    # Production mode
    npm run build
    npm run start:prod
@@ -113,6 +124,7 @@ This API provides a comprehensive solution for searching through **4,345+ health
 ## 📖 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:3000/api/v1
 ```
@@ -120,28 +132,31 @@ http://localhost:3000/api/v1
 ### Public Endpoints
 
 #### 🔍 Search Providers
+
 ```http
 GET /providers/search
 ```
 
 **Query Parameters:**
 
-| Parameter | Type | Description | Example |
-|-----------|------|-------------|---------|
-| `q` | string | Search query | `جراحة` |
-| `province` | string | Filter by province | `القاهرة` |
-| `city` | string | Filter by city | `مدينة نصر` |
-| `specialization` | string | Filter by specialization | `علاج طبيعي` |
-| `providerType` | string | Filter by provider type | `مستشفى` |
-| `page` | number | Page number (default: 1) | `1` |
-| `limit` | number | Items per page (default: 20, max: 100) | `20` |
+| Parameter        | Type   | Description                            | Example      |
+| ---------------- | ------ | -------------------------------------- | ------------ |
+| `q`              | string | Search query                           | `جراحة`      |
+| `province`       | string | Filter by province                     | `القاهرة`    |
+| `city`           | string | Filter by city                         | `مدينة نصر`  |
+| `specialization` | string | Filter by specialization               | `علاج طبيعي` |
+| `providerType`   | string | Filter by provider type                | `مستشفى`     |
+| `page`           | number | Page number (default: 1)               | `1`          |
+| `limit`          | number | Items per page (default: 20, max: 100) | `20`         |
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:3000/api/v1/providers/search?q=جراحة&province=القاهرة&limit=10"
 ```
 
 **Example Response:**
+
 ```json
 {
   "data": [
@@ -167,6 +182,7 @@ curl "http://localhost:3000/api/v1/providers/search?q=جراحة&province=الق
 ```
 
 #### 📊 Get Filter Options
+
 ```http
 GET /providers/filters
 ```
@@ -174,6 +190,7 @@ GET /providers/filters
 Returns all available filter options for provinces, cities, specializations, and provider types.
 
 #### 📈 Get Statistics
+
 ```http
 GET /providers/statistics
 ```
@@ -181,6 +198,7 @@ GET /providers/statistics
 Returns statistics about the provider database.
 
 #### 🔎 Get Provider by ID
+
 ```http
 GET /providers/:id
 ```
@@ -190,6 +208,7 @@ Returns detailed information about a specific provider.
 ### Admin Endpoints
 
 #### 📤 Upload Excel File
+
 ```http
 POST /admin/providers/upload
 ```
@@ -197,16 +216,19 @@ POST /admin/providers/upload
 Upload an Excel file to import providers (no authentication required).
 
 **Request:**
+
 - Content-Type: `multipart/form-data`
 - Body: `file` (Excel file)
 
 **Example:**
+
 ```bash
 curl -X POST http://localhost:3000/api/v1/admin/providers/upload \
   -F "file=@providers.xlsx"
 ```
 
 #### 🗑️ Clear All Providers
+
 ```http
 DELETE /admin/providers/clear
 ```
@@ -214,6 +236,7 @@ DELETE /admin/providers/clear
 Delete all providers from the database.
 
 #### 🗑️ Delete Provider
+
 ```http
 DELETE /admin/providers/:id
 ```
@@ -232,17 +255,18 @@ The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy match
 
 ### Search Weights
 
-| Field | Weight | Priority |
-|-------|--------|----------|
-| Provider Name | 2.0 | Highest |
-| Specialization | 1.5 | High |
-| Services Provided | 1.0 | Medium |
-| City | 1.0 | Medium |
-| Address | 0.5 | Low |
+| Field             | Weight | Priority |
+| ----------------- | ------ | -------- |
+| Provider Name     | 2.0    | Highest  |
+| Specialization    | 1.5    | High     |
+| Services Provided | 1.0    | Medium   |
+| City              | 1.0    | Medium   |
+| Address           | 0.5    | Low      |
 
 ### Example
 
 Searching for "جراحة" (surgery) will match:
+
 - "جراحة عظام" (orthopedic surgery)
 - "جراحة عامة" (general surgery)
 - "مركز الجراحة" (surgery center)
@@ -252,21 +276,22 @@ Searching for "جراحة" (surgery) will match:
 
 ### service_provider Table
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key |
-| providerName | VARCHAR(500) | Name of the provider |
-| providerType | VARCHAR(200) | Type of provider (hospital, clinic, etc.) |
-| servicesProvided | VARCHAR(500) | Services offered |
-| specialization | VARCHAR(300) | Medical specialization |
-| address | TEXT | Full address |
-| city | VARCHAR(200) | City name |
-| province | VARCHAR(200) | Province/Governorate |
-| phoneNumber | VARCHAR(100) | Contact number (optional) |
-| createdAt | TIMESTAMP | Creation timestamp |
-| updatedAt | TIMESTAMP | Last update timestamp |
+| Column           | Type         | Description                               |
+| ---------------- | ------------ | ----------------------------------------- |
+| id               | UUID         | Primary key                               |
+| providerName     | VARCHAR(500) | Name of the provider                      |
+| providerType     | VARCHAR(200) | Type of provider (hospital, clinic, etc.) |
+| servicesProvided | VARCHAR(500) | Services offered                          |
+| specialization   | VARCHAR(300) | Medical specialization                    |
+| address          | TEXT         | Full address                              |
+| city             | VARCHAR(200) | City name                                 |
+| province         | VARCHAR(200) | Province/Governorate                      |
+| phoneNumber      | VARCHAR(100) | Contact number (optional)                 |
+| createdAt        | TIMESTAMP    | Creation timestamp                        |
+| updatedAt        | TIMESTAMP    | Last update timestamp                     |
 
 **Indexes:**
+
 - `idx_provider_name` - For fast name searches
 - `idx_services_provided` - For service searches
 - `idx_specialization` - For specialization filtering
@@ -303,6 +328,7 @@ src/
 ## 🧪 Testing
 
 ### Run Tests
+
 ```bash
 # Unit tests
 npm run test
@@ -326,33 +352,34 @@ npm run test:cov
 
 The API accepts Excel files with the following columns:
 
-| Column (Arabic) | Column (English) | Required |
-|----------------|------------------|----------|
-| مقدم الخدمة | Provider Name | Yes |
-| نوع مقدم الخدمة | Provider Type | Yes |
-| الخدمات المقدمة | Services Provided | Yes |
-| التخصص | Specialization | Yes |
-| العنوان | Address | Yes |
-| المنطقة / المدينة | City | Yes |
-| المحافظة | Province | Yes |
-| Tel. no. - التليفون | Phone Number | No |
+| Column (Arabic)     | Column (English)  | Required |
+| ------------------- | ----------------- | -------- |
+| مقدم الخدمة         | Provider Name     | Yes      |
+| نوع مقدم الخدمة     | Provider Type     | Yes      |
+| الخدمات المقدمة     | Services Provided | Yes      |
+| التخصص              | Specialization    | Yes      |
+| العنوان             | Address           | Yes      |
+| المنطقة / المدينة   | City              | Yes      |
+| المحافظة            | Province          | Yes      |
+| Tel. no. - التليفون | Phone Number      | No       |
 
 **File Requirements:**
+
 - Format: `.xlsx` or `.xls`
 - Max size: 10MB
 - Encoding: UTF-8 for Arabic text
 
 ## 🔧 Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NODE_ENV` | Environment (development/production) | `development` |
-| `APP_PORT` | Server port | `3000` |
-| `DATABASE_HOST` | PostgreSQL host | `localhost` |
-| `DATABASE_PORT` | PostgreSQL port | `5432` |
-| `DATABASE_USERNAME` | Database username | `root` |
-| `DATABASE_PASSWORD` | Database password | `secret` |
-| `DATABASE_NAME` | Database name | `api` |
+| Variable            | Description                          | Default       |
+| ------------------- | ------------------------------------ | ------------- |
+| `NODE_ENV`          | Environment (development/production) | `development` |
+| `APP_PORT`          | Server port                          | `3000`        |
+| `DATABASE_HOST`     | PostgreSQL host                      | `localhost`   |
+| `DATABASE_PORT`     | PostgreSQL port                      | `5432`        |
+| `DATABASE_USERNAME` | Database username                    | `root`        |
+| `DATABASE_PASSWORD` | Database password                    | `secret`      |
+| `DATABASE_NAME`     | Database name                        | `api`         |
 
 ## 🚀 Deployment
 
@@ -409,6 +436,7 @@ This project is based on the [NestJS Boilerplate](https://github.com/brocoders/n
 ## 📞 Support
 
 For questions or issues:
+
 - Check the [API Documentation](./API_DOCUMENTATION.md)
 - Review the [Developer Guide](./DEVELOPER_GUIDE.md)
 - Open an issue on GitHub
@@ -416,4 +444,3 @@ For questions or issues:
 ---
 
 **Made with ❤️ for the Egyptian healthcare community**
-

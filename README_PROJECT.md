@@ -29,6 +29,7 @@ A full-stack application for managing and searching service provider data with f
 ### Technology Stack
 
 **Backend:**
+
 - NestJS (Node.js framework)
 - TypeORM (ORM)
 - PostgreSQL (Database)
@@ -38,6 +39,7 @@ A full-stack application for managing and searching service provider data with f
 - xlsx (Excel parsing)
 
 **Planned Frontend:**
+
 - React
 - Axios/Fetch (API calls)
 - React Router (Navigation)
@@ -80,40 +82,47 @@ src/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    cd service-provider-app
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Setup environment**
+
    ```bash
    cp env-example-relational .env
    ```
 
 4. **Start PostgreSQL**
+
    ```bash
    sudo service postgresql start
    ```
 
 5. **Run migrations**
+
    ```bash
    npm run migration:run
    ```
 
 6. **Seed admin user**
+
    ```bash
    npm run seed:run:relational
    ```
-   
+
    Default admin credentials:
    - Email: `admin@example.com`
    - Password: `secret`
 
 7. **Start the application**
+
    ```bash
    npm run start:dev
    ```
@@ -127,6 +136,7 @@ src/
 ### Public Endpoints
 
 #### Search Providers
+
 ```bash
 # Basic search
 curl "http://localhost:3000/api/v1/providers/search?q=جراحة&limit=10"
@@ -136,11 +146,13 @@ curl "http://localhost:3000/api/v1/providers/search?province=القاهرة&spec
 ```
 
 #### Get Filter Options
+
 ```bash
 curl "http://localhost:3000/api/v1/providers/filters"
 ```
 
 #### Get Statistics
+
 ```bash
 curl "http://localhost:3000/api/v1/providers/statistics"
 ```
@@ -148,6 +160,7 @@ curl "http://localhost:3000/api/v1/providers/statistics"
 ### Admin Endpoints
 
 #### Login
+
 ```bash
 curl -X POST http://localhost:3000/api/v1/auth/email/login \
   -H "Content-Type: application/json" \
@@ -155,6 +168,7 @@ curl -X POST http://localhost:3000/api/v1/auth/email/login \
 ```
 
 #### Upload Excel File
+
 ```bash
 TOKEN="your_jwt_token"
 
@@ -178,21 +192,23 @@ The application uses PostgreSQL's `pg_trgm` extension for fuzzy matching:
 
 ### Search Fields & Weights
 
-| Field | Weight | Description |
-|-------|--------|-------------|
-| Provider Name | 2.0 | Highest priority |
-| Specialization | 1.5 | High priority |
-| Services Provided | 1.0 | Medium priority |
-| City | 1.0 | Medium priority |
-| Address | 0.5 | Lower priority |
+| Field             | Weight | Description      |
+| ----------------- | ------ | ---------------- |
+| Provider Name     | 2.0    | Highest priority |
+| Specialization    | 1.5    | High priority    |
+| Services Provided | 1.0    | Medium priority  |
+| City              | 1.0    | Medium priority  |
+| Address           | 0.5    | Lower priority   |
 
 ### Example Searches
 
 **Search for "جراحة" (surgery):**
+
 - Returns 472 results
 - Includes: "جراحة عظام", "جراحة عامة", "جراحة مخ وأعصاب"
 
 **Search for "طبيعي" (physical therapy):**
+
 - Returns 1,460 results
 - Matches: "علاج طبيعي", "مركز العلاج الطبيعي"
 
@@ -302,7 +318,7 @@ export const SearchBar = () => {
         placeholder="ابحث عن مقدم خدمة..."
       />
       <button onClick={handleSearch}>بحث</button>
-      
+
       {results.map((provider) => (
         <ProviderCard key={provider.id} provider={provider} />
       ))}
@@ -327,7 +343,7 @@ export const SearchBar = () => {
 ✅ **Fuzzy Search**: All search queries returning accurate results  
 ✅ **Filters**: Province, city, and specialization filters working  
 ✅ **Pagination**: Proper pagination with configurable limits  
-✅ **Statistics**: Accurate counts and distributions  
+✅ **Statistics**: Accurate counts and distributions
 
 ### Run Tests
 
@@ -371,20 +387,21 @@ npm run test:cov
 
 The application expects Excel files with the following columns:
 
-| Column (Arabic) | Column (English) | Required | Type |
-|----------------|------------------|----------|------|
-| مقدم الخدمة | Provider Name | Yes | Text |
-| نوع مقدم الخدمة | Provider Type | Yes | Text |
-| الخدمات المقدمة | Services Provided | Yes | Text |
-| التخصص | Specialization | Yes | Text |
-| العنوان | Address | Yes | Text |
-| المنطقة / المدينة | City | Yes | Text |
-| المحافظة | Province | Yes | Text |
-| Tel. no. - التليفون | Phone Number | No | Text |
+| Column (Arabic)     | Column (English)  | Required | Type |
+| ------------------- | ----------------- | -------- | ---- |
+| مقدم الخدمة         | Provider Name     | Yes      | Text |
+| نوع مقدم الخدمة     | Provider Type     | Yes      | Text |
+| الخدمات المقدمة     | Services Provided | Yes      | Text |
+| التخصص              | Specialization    | Yes      | Text |
+| العنوان             | Address           | Yes      | Text |
+| المنطقة / المدينة   | City              | Yes      | Text |
+| المحافظة            | Province          | Yes      | Text |
+| Tel. no. - التليفون | Phone Number      | No       | Text |
 
 ## 🚧 Future Enhancements
 
 ### Backend
+
 - [ ] Add caching layer (Redis)
 - [ ] Implement rate limiting
 - [ ] Add more filter options
@@ -392,6 +409,7 @@ The application expects Excel files with the following columns:
 - [ ] Add audit logging
 
 ### Frontend (To be implemented)
+
 - [ ] React application with search interface
 - [ ] Advanced filter UI
 - [ ] Provider detail modal
@@ -415,6 +433,7 @@ This project uses the NestJS Boilerplate as a foundation. See the original [Nest
 ## 📞 Support
 
 For questions or issues:
+
 - Check [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 - Review [NestJS Documentation](https://docs.nestjs.com)
 - Open an issue on GitHub
@@ -424,4 +443,3 @@ For questions or issues:
 **Status**: Backend Complete ✅ | Frontend Pending 🚧
 
 **Last Updated**: October 18, 2025
-

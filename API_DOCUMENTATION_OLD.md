@@ -27,6 +27,7 @@ curl -X POST http://localhost:3000/api/v1/auth/email/login \
 ```
 
 **Default Admin Credentials:**
+
 - Email: `admin@example.com`
 - Password: `secret`
 
@@ -42,15 +43,15 @@ curl -X POST http://localhost:3000/api/v1/auth/email/login \
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `q` | string | No | Search query for fuzzy search across name, specialization, services, address, city |
-| `province` | string | No | Filter by province (e.g., "القاهرة") |
-| `city` | string | No | Filter by city (e.g., "مدينة نصر") |
-| `specialization` | string | No | Filter by specialization (e.g., "علاج طبيعي") |
-| `providerType` | string | No | Filter by provider type (e.g., "هيئة أطباء") |
-| `page` | number | No | Page number (default: 1) |
-| `limit` | number | No | Items per page (default: 20, max: 100) |
+| Parameter        | Type   | Required | Description                                                                        |
+| ---------------- | ------ | -------- | ---------------------------------------------------------------------------------- |
+| `q`              | string | No       | Search query for fuzzy search across name, specialization, services, address, city |
+| `province`       | string | No       | Filter by province (e.g., "القاهرة")                                               |
+| `city`           | string | No       | Filter by city (e.g., "مدينة نصر")                                                 |
+| `specialization` | string | No       | Filter by specialization (e.g., "علاج طبيعي")                                      |
+| `providerType`   | string | No       | Filter by provider type (e.g., "هيئة أطباء")                                       |
+| `page`           | number | No       | Page number (default: 1)                                                           |
+| `limit`          | number | No       | Items per page (default: 20, max: 100)                                             |
 
 **Example Requests:**
 
@@ -120,6 +121,7 @@ curl "http://localhost:3000/api/v1/providers/filters"
 ```
 
 **Statistics:**
+
 - 29 Provinces
 - 326 Cities
 - 99 Specializations
@@ -145,14 +147,14 @@ curl "http://localhost:3000/api/v1/providers/statistics"
 {
   "total": 4345,
   "byProvince": [
-    {"province": "القاهرة", "count": 1403},
-    {"province": "الجيزة", "count": 905},
-    {"province": "الإسكندرية", "count": 325}
+    { "province": "القاهرة", "count": 1403 },
+    { "province": "الجيزة", "count": 905 },
+    { "province": "الإسكندرية", "count": 325 }
   ],
   "bySpecialization": [
-    {"specialization": "تحاليل طبية", "count": 1185},
-    {"specialization": "صيدلية", "count": 1075},
-    {"specialization": "متعدد التخصصات", "count": 484}
+    { "specialization": "تحاليل طبية", "count": 1185 },
+    { "specialization": "صيدلية", "count": 1075 },
+    { "specialization": "متعدد التخصصات", "count": 484 }
   ]
 }
 ```
@@ -204,6 +206,7 @@ curl "http://localhost:3000/api/v1/providers/8aad3ab6-50a4-4fa8-83c5-f0a7eff9e9d
 **Content-Type:** `multipart/form-data`
 
 **Request Body:**
+
 - `file`: Excel file (.xlsx or .xls)
 
 **Example Request:**
@@ -228,6 +231,7 @@ curl -X POST http://localhost:3000/api/v1/admin/providers/upload \
 ```
 
 **File Requirements:**
+
 - Format: `.xlsx` or `.xls`
 - Max size: 10MB
 - Required columns (in Arabic):
@@ -306,6 +310,7 @@ The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy match
 - Ranks results by **relevance**
 
 **Search Fields (weighted):**
+
 1. Provider Name (weight: 2.0)
 2. Specialization (weight: 1.5)
 3. Services Provided (weight: 1.0)
@@ -319,6 +324,7 @@ The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy match
 ## Error Responses
 
 ### 400 Bad Request
+
 ```json
 {
   "statusCode": 400,
@@ -328,6 +334,7 @@ The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy match
 ```
 
 ### 401 Unauthorized
+
 ```json
 {
   "statusCode": 401,
@@ -336,6 +343,7 @@ The search functionality uses **PostgreSQL's pg_trgm extension** for fuzzy match
 ```
 
 ### 404 Not Found
+
 ```json
 {
   "statusCode": 404,
@@ -360,21 +368,22 @@ http://localhost:3000/docs
 
 ### service_provider Table
 
-| Column | Type | Nullable | Indexed |
-|--------|------|----------|---------|
-| id | UUID | No | Primary Key |
-| providerName | VARCHAR(500) | No | Yes |
-| providerType | VARCHAR(200) | No | No |
-| servicesProvided | VARCHAR(500) | No | Yes |
-| specialization | VARCHAR(300) | No | Yes |
-| address | TEXT | No | Yes |
-| city | VARCHAR(200) | No | Yes |
-| province | VARCHAR(200) | No | Yes |
-| phoneNumber | VARCHAR(100) | Yes | No |
-| createdAt | TIMESTAMP | No | No |
-| updatedAt | TIMESTAMP | No | No |
+| Column           | Type         | Nullable | Indexed     |
+| ---------------- | ------------ | -------- | ----------- |
+| id               | UUID         | No       | Primary Key |
+| providerName     | VARCHAR(500) | No       | Yes         |
+| providerType     | VARCHAR(200) | No       | No          |
+| servicesProvided | VARCHAR(500) | No       | Yes         |
+| specialization   | VARCHAR(300) | No       | Yes         |
+| address          | TEXT         | No       | Yes         |
+| city             | VARCHAR(200) | No       | Yes         |
+| province         | VARCHAR(200) | No       | Yes         |
+| phoneNumber      | VARCHAR(100) | Yes      | No          |
+| createdAt        | TIMESTAMP    | No       | No          |
+| updatedAt        | TIMESTAMP    | No       | No          |
 
 **Indexes:**
+
 - `idx_provider_name` on `providerName`
 - `idx_services_provided` on `servicesProvided`
 - `idx_specialization` on `specialization`
@@ -396,11 +405,13 @@ http://localhost:3000/docs
 ## Testing Results
 
 **Import Test:**
+
 - ✅ Successfully imported 4,345 providers
 - ✅ All 8 columns parsed correctly
 - ✅ Arabic text handled properly
 
 **Search Tests:**
+
 - ✅ Fuzzy search: "جراحة" → 472 results
 - ✅ Fuzzy search: "طبيعي" → 1,460 results
 - ✅ Fuzzy search: "أسنان" → 650 results
@@ -461,4 +472,3 @@ npm run start:prod
 ## Support
 
 For issues or questions, refer to the [NestJS Boilerplate Documentation](https://github.com/brocoders/nestjs-boilerplate).
-

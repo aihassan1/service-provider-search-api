@@ -24,9 +24,11 @@
 ## Project Overview
 
 ### Purpose
+
 This API provides a searchable database of healthcare service providers in Egypt, supporting fuzzy search in Arabic, advanced filtering, and bulk Excel imports.
 
 ### Key Statistics
+
 - **Total Providers**: 4,345
 - **Provinces**: 29
 - **Cities**: 326
@@ -34,6 +36,7 @@ This API provides a searchable database of healthcare service providers in Egypt
 - **Provider Types**: 12
 
 ### Core Capabilities
+
 1. **Fuzzy Search**: PostgreSQL pg_trgm-based search with weighted relevance
 2. **Multi-field Filtering**: Province, city, specialization, provider type
 3. **Excel Import**: Bulk import with validation and error handling
@@ -112,16 +115,16 @@ providers/
 
 ### Core Technologies
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **NestJS** | 10.x | Backend framework |
-| **TypeScript** | 5.x | Type-safe language |
-| **PostgreSQL** | 14+ | Primary database |
-| **TypeORM** | 0.3.x | ORM for database access |
-| **pg_trgm** | - | PostgreSQL fuzzy search extension |
-| **xlsx** | 0.18.x | Excel file parsing |
-| **class-validator** | 0.14.x | DTO validation |
-| **Swagger** | 7.x | API documentation |
+| Technology          | Version | Purpose                           |
+| ------------------- | ------- | --------------------------------- |
+| **NestJS**          | 10.x    | Backend framework                 |
+| **TypeScript**      | 5.x     | Type-safe language                |
+| **PostgreSQL**      | 14+     | Primary database                  |
+| **TypeORM**         | 0.3.x   | ORM for database access           |
+| **pg_trgm**         | -       | PostgreSQL fuzzy search extension |
+| **xlsx**            | 0.18.x  | Excel file parsing                |
+| **class-validator** | 0.14.x  | DTO validation                    |
+| **Swagger**         | 7.x     | API documentation                 |
 
 ### Development Tools
 
@@ -182,6 +185,7 @@ service-provider-app/
 ### Key Files Explained
 
 #### Domain Entity (`src/providers/entities/service-provider.entity.ts`)
+
 ```typescript
 export class ServiceProvider {
   id: string;
@@ -197,11 +201,13 @@ export class ServiceProvider {
   updatedAt: Date;
 }
 ```
+
 - Pure domain model
 - No database annotations
 - Business logic only
 
 #### TypeORM Entity (`src/providers/infrastructure/persistence/relational/entities/service-provider.entity.ts`)
+
 ```typescript
 @Entity('service_provider')
 export class ServiceProviderEntity {
@@ -211,15 +217,17 @@ export class ServiceProviderEntity {
   @Column({ type: 'varchar', length: 500 })
   @Index('idx_provider_name')
   providerName: string;
-  
+
   // ... other columns with database annotations
 }
 ```
+
 - Database-specific annotations
 - Indexes defined here
 - Infrastructure concern
 
 #### Mapper (`src/providers/infrastructure/persistence/relational/mappers/service-provider.mapper.ts`)
+
 ```typescript
 export class ServiceProviderMapper {
   static toDomain(raw: ServiceProviderEntity): ServiceProvider {
@@ -239,6 +247,7 @@ export class ServiceProviderMapper {
   }
 }
 ```
+
 - Converts between domain and TypeORM entities
 - Keeps layers decoupled
 
@@ -306,6 +315,7 @@ npm run migration:revert
 ```
 
 **Migration File Structure:**
+
 ```typescript
 export class CreateServiceProvider1760759761951 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -325,6 +335,7 @@ export class CreateServiceProvider1760759761951 implements MigrationInterface {
 ### Public Endpoints
 
 #### 1. Search Providers
+
 ```
 GET /api/v1/providers/search
 ```
@@ -334,6 +345,7 @@ GET /api/v1/providers/search
 **Repository:** `ServiceProviderRelationalRepository.findAll()`
 
 **Query Parameters:**
+
 - `q` (string): Search query for fuzzy matching
 - `province` (string): Filter by province
 - `city` (string): Filter by city
@@ -343,6 +355,7 @@ GET /api/v1/providers/search
 - `limit` (number): Items per page (default: 20, max: 100)
 
 **Response:**
+
 ```typescript
 {
   data: ServiceProvider[];
@@ -354,12 +367,14 @@ GET /api/v1/providers/search
 ```
 
 **Implementation Details:**
+
 - Uses `SearchServiceProviderDto` for validation
 - Fuzzy search with pg_trgm similarity
 - Weighted relevance scoring
 - Pagination with TypeORM `skip` and `take`
 
 #### 2. Get Filter Options
+
 ```
 GET /api/v1/providers/filters
 ```
@@ -369,6 +384,7 @@ GET /api/v1/providers/filters
 **Repository:** `ServiceProviderRelationalRepository.getDistinctValues()`
 
 **Response:**
+
 ```typescript
 {
   provinces: string[];
@@ -379,6 +395,7 @@ GET /api/v1/providers/filters
 ```
 
 **Implementation:**
+
 ```sql
 SELECT DISTINCT province FROM service_provider ORDER BY province;
 SELECT DISTINCT city FROM service_provider ORDER BY city;
@@ -386,6 +403,7 @@ SELECT DISTINCT city FROM service_provider ORDER BY city;
 ```
 
 #### 3. Get Statistics
+
 ```
 GET /api/v1/providers/statistics
 ```
@@ -395,6 +413,7 @@ GET /api/v1/providers/statistics
 **Repository:** `ServiceProviderRelationalRepository.getStatistics()`
 
 **Response:**
+
 ```typescript
 {
   total: number;
@@ -404,6 +423,7 @@ GET /api/v1/providers/statistics
 ```
 
 **Implementation:**
+
 ```sql
 SELECT COUNT(*) FROM service_provider;
 SELECT province, COUNT(*) as count FROM service_provider GROUP BY province ORDER BY count DESC;
@@ -411,6 +431,7 @@ SELECT specialization, COUNT(*) as count FROM service_provider GROUP BY speciali
 ```
 
 #### 4. Get Provider by ID
+
 ```
 GET /api/v1/providers/:id
 ```
@@ -424,25 +445,30 @@ GET /api/v1/providers/:id
 ### Admin Endpoints
 
 #### 5. Upload Excel File
+
 ```
 POST /api/v1/admin/providers/upload
 ```
 
 **Controller:** `AdminProvidersController.uploadFile()`  
-**Services:** 
+**Services:**
+
 - `ExcelParserService.parseExcel()`
 - `ProvidersService.bulkCreate()`
 
 **Request:**
+
 - Content-Type: `multipart/form-data`
 - Body: `file` (Excel file)
 
 **Validation:**
+
 - File type: `.xlsx` or `.xls`
 - Max size: 10MB
 - Required columns present
 
 **Response:**
+
 ```typescript
 {
   message: string;
@@ -453,6 +479,7 @@ POST /api/v1/admin/providers/upload
 ```
 
 #### 6. Clear All Providers
+
 ```
 DELETE /api/v1/admin/providers/clear
 ```
@@ -462,11 +489,13 @@ DELETE /api/v1/admin/providers/clear
 **Repository:** `ServiceProviderRelationalRepository.deleteAll()`
 
 **Implementation:**
+
 ```sql
 DELETE FROM service_provider;
 ```
 
 #### 7. Delete Provider
+
 ```
 DELETE /api/v1/admin/providers/:id
 ```
@@ -482,6 +511,7 @@ DELETE /api/v1/admin/providers/:id
 ### Overview
 
 The fuzzy search uses **PostgreSQL's pg_trgm extension** which provides:
+
 - **Trigram similarity**: Breaks text into 3-character sequences
 - **Similarity operator**: `similarity(text1, text2)` returns 0-1 score
 - **GIN indexes**: Fast trigram lookups
@@ -565,16 +595,17 @@ async findAll(dto: SearchServiceProviderDto): Promise<[ServiceProvider[], number
 
 ### Tuning Parameters
 
-| Parameter | Value | Purpose |
-|-----------|-------|---------|
-| `similarity_threshold` | 0.1 | Minimum similarity to match (10%) |
-| `provider_name_weight` | 2.0 | Highest priority field |
-| `specialization_weight` | 1.5 | High priority field |
-| `services_weight` | 1.0 | Medium priority field |
-| `city_weight` | 1.0 | Medium priority field |
-| `address_weight` | 0.5 | Lower priority field |
+| Parameter               | Value | Purpose                           |
+| ----------------------- | ----- | --------------------------------- |
+| `similarity_threshold`  | 0.1   | Minimum similarity to match (10%) |
+| `provider_name_weight`  | 2.0   | Highest priority field            |
+| `specialization_weight` | 1.5   | High priority field               |
+| `services_weight`       | 1.0   | Medium priority field             |
+| `city_weight`           | 1.0   | Medium priority field             |
+| `address_weight`        | 0.5   | Lower priority field              |
 
 **Adjusting weights:**
+
 - Increase weight = higher priority in relevance scoring
 - Decrease similarity threshold = more matches (less strict)
 - Increase similarity threshold = fewer matches (more strict)
@@ -701,14 +732,14 @@ async uploadFile(@UploadedFile() file: Express.Multer.File) {
 
 ### Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Classes | PascalCase | `ServiceProvider` |
+| Type       | Convention              | Example                      |
+| ---------- | ----------------------- | ---------------------------- |
+| Classes    | PascalCase              | `ServiceProvider`            |
 | Interfaces | PascalCase + `I` prefix | `IServiceProviderRepository` |
-| Methods | camelCase | `findAll()` |
-| Variables | camelCase | `providerName` |
-| Constants | UPPER_SNAKE_CASE | `MAX_FILE_SIZE` |
-| Files | kebab-case | `service-provider.entity.ts` |
+| Methods    | camelCase               | `findAll()`                  |
+| Variables  | camelCase               | `providerName`               |
+| Constants  | UPPER_SNAKE_CASE        | `MAX_FILE_SIZE`              |
+| Files      | kebab-case              | `service-provider.entity.ts` |
 
 ### DTO Validation
 
@@ -770,7 +801,11 @@ async findOne(id: string): Promise<ServiceProvider> {
 export class ProvidersController {
   @Get('search')
   @ApiOperation({ summary: 'Search service providers with fuzzy matching' })
-  @ApiResponse({ status: 200, description: 'Providers found', type: [ServiceProvider] })
+  @ApiResponse({
+    status: 200,
+    description: 'Providers found',
+    type: [ServiceProvider],
+  })
   @ApiResponse({ status: 400, description: 'Invalid query parameters' })
   async search(@Query() dto: SearchServiceProviderDto) {
     // ...
@@ -899,11 +934,15 @@ describe('ProvidersService', () => {
     }).compile();
 
     service = module.get<ProvidersService>(ProvidersService);
-    repository = module.get<ServiceProviderRepository>('ServiceProviderRepository');
+    repository = module.get<ServiceProviderRepository>(
+      'ServiceProviderRepository',
+    );
   });
 
   it('should find all providers', async () => {
-    const mockProviders = [/* ... */];
+    const mockProviders = [
+      /* ... */
+    ];
     jest.spyOn(repository, 'findAll').mockResolvedValue([mockProviders, 1]);
 
     const result = await service.findAll({});
@@ -978,6 +1017,7 @@ CORS_ORIGIN=https://yourdomain.com
 ### Docker Deployment
 
 **Dockerfile:**
+
 ```dockerfile
 FROM node:22-alpine
 
@@ -995,6 +1035,7 @@ CMD ["npm", "run", "start:prod"]
 ```
 
 **docker-compose.yml:**
+
 ```yaml
 version: '3.8'
 
@@ -1002,7 +1043,7 @@ services:
   api:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
@@ -1021,13 +1062,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
 volumes:
   postgres_data:
 ```
 
 **Deploy:**
+
 ```bash
 docker-compose up -d
 ```
@@ -1057,11 +1099,13 @@ docker-compose up -d
 #### 1. Database Connection Failed
 
 **Error:**
+
 ```
 Error: connect ECONNREFUSED 127.0.0.1:5432
 ```
 
 **Solution:**
+
 ```bash
 # Check if PostgreSQL is running
 sudo service postgresql status
@@ -1076,11 +1120,13 @@ psql -U root -d api -h localhost
 #### 2. Migration Failed
 
 **Error:**
+
 ```
 QueryFailedError: relation "service_provider" already exists
 ```
 
 **Solution:**
+
 ```bash
 # Revert last migration
 npm run migration:revert
@@ -1095,11 +1141,13 @@ npm run migration:run
 #### 3. Fuzzy Search Not Working
 
 **Error:**
+
 ```
 ERROR: function similarity(character varying, character varying) does not exist
 ```
 
 **Solution:**
+
 ```bash
 # Enable pg_trgm extension
 sudo -u postgres psql -d api -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
@@ -1108,11 +1156,13 @@ sudo -u postgres psql -d api -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 #### 4. Excel Upload Failed
 
 **Error:**
+
 ```
 BadRequestException: Invalid file format
 ```
 
 **Solution:**
+
 - Ensure file is `.xlsx` or `.xls`
 - Check file size (max 10MB)
 - Verify column names match expected Arabic names
@@ -1121,6 +1171,7 @@ BadRequestException: Invalid file format
 #### 5. Slow Search Performance
 
 **Solution:**
+
 ```sql
 -- Check if indexes exist
 SELECT indexname FROM pg_indexes WHERE tablename = 'service_provider';
@@ -1142,27 +1193,30 @@ EXPLAIN ANALYZE SELECT * FROM service_provider WHERE similarity(provider_name, '
 ### Adding New Fields
 
 1. **Update Domain Entity**
+
 ```typescript
 // src/providers/entities/service-provider.entity.ts
 export class ServiceProvider {
   // ... existing fields
-  email?: string;  // New field
+  email?: string; // New field
 }
 ```
 
 2. **Update TypeORM Entity**
+
 ```typescript
 // src/providers/infrastructure/persistence/relational/entities/service-provider.entity.ts
 @Entity('service_provider')
 export class ServiceProviderEntity {
   // ... existing fields
-  
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   email?: string;
 }
 ```
 
 3. **Update Mapper**
+
 ```typescript
 // src/providers/infrastructure/persistence/relational/mappers/service-provider.mapper.ts
 static toDomain(raw: ServiceProviderEntity): ServiceProvider {
@@ -1173,17 +1227,19 @@ static toDomain(raw: ServiceProviderEntity): ServiceProvider {
 ```
 
 4. **Create Migration**
+
 ```bash
 npm run migration:generate -- src/database/migrations/AddEmailField
 npm run migration:run
 ```
 
 5. **Update DTOs**
+
 ```typescript
 // src/providers/dto/create-service-provider.dto.ts
 export class CreateServiceProviderDto {
   // ... existing fields
-  
+
   @IsOptional()
   @IsEmail()
   email?: string;
@@ -1193,6 +1249,7 @@ export class CreateServiceProviderDto {
 ### Adding New Endpoints
 
 1. **Add Method to Controller**
+
 ```typescript
 @Get('by-province/:province')
 @ApiOperation({ summary: 'Get providers by province' })
@@ -1202,6 +1259,7 @@ async getByProvince(@Param('province') province: string) {
 ```
 
 2. **Add Method to Service**
+
 ```typescript
 async findByProvince(province: string): Promise<ServiceProvider[]> {
   return this.repository.findByProvince(province);
@@ -1209,6 +1267,7 @@ async findByProvince(province: string): Promise<ServiceProvider[]> {
 ```
 
 3. **Add Method to Repository**
+
 ```typescript
 async findByProvince(province: string): Promise<ServiceProvider[]> {
   const entities = await this.repository.find({ where: { province } });
@@ -1219,10 +1278,11 @@ async findByProvince(province: string): Promise<ServiceProvider[]> {
 ### Adding New Filters
 
 1. **Update Search DTO**
+
 ```typescript
 export class SearchServiceProviderDto {
   // ... existing fields
-  
+
   @IsOptional()
   @IsString()
   @ApiPropertyOptional()
@@ -1231,6 +1291,7 @@ export class SearchServiceProviderDto {
 ```
 
 2. **Update Repository Query**
+
 ```typescript
 if (dto.servicesProvided) {
   queryBuilder.andWhere('provider.servicesProvided = :servicesProvided', {
@@ -1242,12 +1303,14 @@ if (dto.servicesProvided) {
 ### Adding Authentication
 
 1. **Install Passport**
+
 ```bash
 npm install @nestjs/passport passport passport-jwt
 npm install -D @types/passport-jwt
 ```
 
 2. **Create Auth Module**
+
 ```typescript
 // src/auth/auth.module.ts
 @Module({
@@ -1265,6 +1328,7 @@ export class AuthModule {}
 ```
 
 3. **Protect Endpoints**
+
 ```typescript
 @UseGuards(AuthGuard('jwt'))
 @Post('upload')
@@ -1276,12 +1340,14 @@ async uploadFile(@UploadedFile() file: Express.Multer.File) {
 ### Adding Caching
 
 1. **Install Redis**
+
 ```bash
 npm install @nestjs/cache-manager cache-manager
 npm install cache-manager-redis-store
 ```
 
 2. **Configure Cache Module**
+
 ```typescript
 @Module({
   imports: [
@@ -1297,6 +1363,7 @@ export class AppModule {}
 ```
 
 3. **Use Cache Interceptor**
+
 ```typescript
 @UseInterceptors(CacheInterceptor)
 @Get('filters')
@@ -1351,17 +1418,20 @@ When adding new features:
 ## Additional Resources
 
 ### Documentation
+
 - [NestJS Documentation](https://docs.nestjs.com/)
 - [TypeORM Documentation](https://typeorm.io/)
 - [PostgreSQL pg_trgm](https://www.postgresql.org/docs/current/pgtrgm.html)
 - [Swagger/OpenAPI](https://swagger.io/specification/)
 
 ### Tools
+
 - [Postman](https://www.postman.com/) - API testing
 - [DBeaver](https://dbeaver.io/) - Database management
 - [VS Code](https://code.visualstudio.com/) - IDE
 
 ### Community
+
 - [NestJS Discord](https://discord.gg/nestjs)
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/nestjs)
 
@@ -1370,4 +1440,3 @@ When adding new features:
 **Last Updated**: October 18, 2025  
 **Version**: 1.0.0  
 **Maintainer**: Development Team
-

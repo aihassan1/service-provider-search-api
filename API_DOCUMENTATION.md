@@ -27,10 +27,12 @@ curl -X POST http://localhost:3000/api/v1/auth/email/login \
 ```
 
 **Default Admin Credentials:**
+
 - Email: `admin@example.com`
 - Password: `secret`
 
 **Response:**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -59,15 +61,15 @@ curl -X POST http://localhost:3000/api/v1/auth/email/login \
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `q` | string | No | Search query for fuzzy search across name, specialization, services, address, city |
-| `province` | string | No | Filter by province (e.g., "القاهرة") |
-| `city` | string | No | Filter by city (e.g., "مدينة نصر") |
-| `specialization` | string | No | Filter by specialization (e.g., "علاج طبيعي") |
-| `providerType` | string | No | Filter by provider type (e.g., "هيئة أطباء") |
-| `page` | number | No | Page number (default: 1) |
-| `limit` | number | No | Items per page (default: 20, max: 100) |
+| Parameter        | Type   | Required | Description                                                                        |
+| ---------------- | ------ | -------- | ---------------------------------------------------------------------------------- |
+| `q`              | string | No       | Search query for fuzzy search across name, specialization, services, address, city |
+| `province`       | string | No       | Filter by province (e.g., "القاهرة")                                               |
+| `city`           | string | No       | Filter by city (e.g., "مدينة نصر")                                                 |
+| `specialization` | string | No       | Filter by specialization (e.g., "علاج طبيعي")                                      |
+| `providerType`   | string | No       | Filter by provider type (e.g., "هيئة أطباء")                                       |
+| `page`           | number | No       | Page number (default: 1)                                                           |
+| `limit`          | number | No       | Items per page (default: 20, max: 100)                                             |
 
 **Example Requests:**
 
@@ -153,12 +155,12 @@ curl "http://localhost:3000/api/v1/providers/statistics"
 {
   "total": 4345,
   "byProvince": [
-    {"province": "القاهرة", "count": 1403},
-    {"province": "الجيزة", "count": 905}
+    { "province": "القاهرة", "count": 1403 },
+    { "province": "الجيزة", "count": 905 }
   ],
   "bySpecialization": [
-    {"specialization": "تحاليل طبية", "count": 1185},
-    {"specialization": "صيدلية", "count": 1075}
+    { "specialization": "تحاليل طبية", "count": 1185 },
+    { "specialization": "صيدلية", "count": 1075 }
   ]
 }
 ```
@@ -333,6 +335,7 @@ curl -X PUT http://localhost:3000/api/v1/admin/providers/8aad3ab6-50a4-4fa8-83c5
 **Content-Type:** `multipart/form-data`
 
 **Request Body:**
+
 - `file`: Excel file (.xlsx or .xls)
 
 **Example Request:**
@@ -357,6 +360,7 @@ curl -X POST http://localhost:3000/api/v1/admin/providers/upload \
 ```
 
 **File Requirements:**
+
 - Format: `.xlsx` or `.xls`
 - Max size: 10MB
 - Required columns (in Arabic):
@@ -428,6 +432,7 @@ curl -X DELETE http://localhost:3000/api/v1/admin/providers/clear \
 ## Error Responses
 
 ### 400 Bad Request
+
 ```json
 {
   "statusCode": 400,
@@ -437,6 +442,7 @@ curl -X DELETE http://localhost:3000/api/v1/admin/providers/clear \
 ```
 
 ### 401 Unauthorized
+
 ```json
 {
   "statusCode": 401,
@@ -445,6 +451,7 @@ curl -X DELETE http://localhost:3000/api/v1/admin/providers/clear \
 ```
 
 ### 403 Forbidden
+
 ```json
 {
   "statusCode": 403,
@@ -454,6 +461,7 @@ curl -X DELETE http://localhost:3000/api/v1/admin/providers/clear \
 ```
 
 ### 404 Not Found
+
 ```json
 {
   "statusCode": 404,
@@ -466,15 +474,15 @@ curl -X DELETE http://localhost:3000/api/v1/admin/providers/clear \
 
 ## CRUD Operations Summary
 
-| Operation | Endpoint | Method | Auth Required | Description |
-|-----------|----------|--------|---------------|-------------|
-| **Create** | `/admin/providers` | POST | ✅ Admin | Create single provider |
-| **Read (One)** | `/providers/:id` | GET | ❌ Public | Get provider by ID |
-| **Read (Search)** | `/providers/search` | GET | ❌ Public | Search with filters |
-| **Update** | `/admin/providers/:id` | PUT | ✅ Admin | Update provider |
-| **Delete** | `/admin/providers/:id` | DELETE | ✅ Admin | Delete provider |
-| **Bulk Import** | `/admin/providers/upload` | POST | ✅ Admin | Import from Excel |
-| **Clear All** | `/admin/providers/clear` | DELETE | ✅ Admin | Delete all providers |
+| Operation         | Endpoint                  | Method | Auth Required | Description            |
+| ----------------- | ------------------------- | ------ | ------------- | ---------------------- |
+| **Create**        | `/admin/providers`        | POST   | ✅ Admin      | Create single provider |
+| **Read (One)**    | `/providers/:id`          | GET    | ❌ Public     | Get provider by ID     |
+| **Read (Search)** | `/providers/search`       | GET    | ❌ Public     | Search with filters    |
+| **Update**        | `/admin/providers/:id`    | PUT    | ✅ Admin      | Update provider        |
+| **Delete**        | `/admin/providers/:id`    | DELETE | ✅ Admin      | Delete provider        |
+| **Bulk Import**   | `/admin/providers/upload` | POST   | ✅ Admin      | Import from Excel      |
+| **Clear All**     | `/admin/providers/clear`  | DELETE | ✅ Admin      | Delete all providers   |
 
 ---
 
@@ -487,6 +495,7 @@ http://localhost:3000/docs
 ```
 
 The Swagger UI provides:
+
 - Interactive endpoint testing
 - Request/response schemas
 - Authentication testing
@@ -538,7 +547,7 @@ app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
-  })
+  }),
 );
 ```
 
@@ -562,6 +571,7 @@ app.enableCors({
 ## Support
 
 For questions or issues:
+
 - Check [README.md](./README.md)
 - Review [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)
 - Open an issue on GitHub
@@ -570,4 +580,3 @@ For questions or issues:
 
 **Last Updated**: October 18, 2025  
 **API Version**: 1.0.0
-
